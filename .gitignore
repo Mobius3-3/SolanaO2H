@@ -1,0 +1,16 @@
+node_modules/
+package-lock.json
+
+scripts/
+sol_keypair.json
+
+.anchor
+.DS_Store
+.prettierignore
+target
+*.rs.bk
+node_modules
+test-ledger
+.yarn
+app
+migrations
