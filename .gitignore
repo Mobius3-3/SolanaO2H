@@ -4,6 +4,8 @@ package-lock.json
 scripts/
 sol_keypair.json
 
+./package.json
+
 .anchor
 .DS_Store
 .prettierignore
