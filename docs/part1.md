@@ -29,7 +29,7 @@
         - ```Clone```
 
         Those traits implementation is also used for trait bounds checking.
-
+<br>
     - Based on struct ```MyStorage``` and macro ```#[account]```, three functions can be realized:
 
         - Serialize a MyStorage instance into bytes
@@ -107,7 +107,9 @@ pub struct AccountInfo<'a> {
 ```
 - How ```<'info>``` works in demo code
     The data ```Account<'info, MyStorage>``` references is all the information under ```AccountInfo<'info>``` which includes referenced or borrowed value. <'info> passed through from outside all the way to ```AccountInfo``` is to make sure the memories from outside reference is binded validly.
+
 <br>
+
 - Why it works this way:
     - The Solana runtime gives you a set of ```AccountInfo```s at the start of an instruction.
 
