@@ -1,17 +1,20 @@
+# pkg
 node_modules/
+
+# config
+/package.json
 package-lock.json
 
+# local file
 scripts/
 sol_keypair.json
-
-./package.json
+troubleshooting.md
 
 .anchor
 .DS_Store
 .prettierignore
 target
 *.rs.bk
-node_modules
 test-ledger
 .yarn
 app
