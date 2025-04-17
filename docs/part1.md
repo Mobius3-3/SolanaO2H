@@ -1,3 +1,4 @@
+[toc]
 # Part1
 
 ## 1. macro - account
@@ -30,6 +31,10 @@
 
         Those traits implementation is also used for trait bounds checking.
 <br>
+
+    - The Account type will check that the owner of the account being loaded is actually owned by the program. If the owner does not match, then it won’t load.
+<br>
+
     - Based on struct ```MyStorage``` and macro ```#[account]```, three functions can be realized:
 
         - Serialize a MyStorage instance into bytes
@@ -57,6 +62,7 @@
         ```
 
 ### 1.2 #[derive(Accounts)]
+
 
 #### 1.2.1 <'info>
 
@@ -107,7 +113,6 @@ pub struct AccountInfo<'a> {
 ```
 - How ```<'info>``` works in demo code
     The data ```Account<'info, MyStorage>``` references is all the information under ```AccountInfo<'info>``` which includes referenced or borrowed value. <'info> passed through from outside all the way to ```AccountInfo``` is to make sure the memories from outside reference is binded validly.
-
 <br>
 
 - Why it works this way:
@@ -118,3 +123,37 @@ pub struct AccountInfo<'a> {
     - Anchor wraps this into ```Account<'info, T>``` by deserializing the data part into ```T```.
 
     - Rust’s borrow checker needs to track how long those references are valid — that’s what 'info does.
+
+#### 1.2.2 #[account(xxx, ...)]
+
+1. Explanation:
+
+    The init in ```#[account(init, ...)]``` is a custom keyword handled by the procedural macro #[derive(Accounts)] macro which interprets the ```#[account(...)]``` attributes using Rust’s macro system.
+
+2. Demo
+
+    As definition of ```#[derive(Accounts)]``` below, 
+
+    ```rust
+    #[proc_macro_derive(Accounts, attributes(account, instruction))]
+    pub fn derive_accounts(item: TokenStream) -> TokenStream {
+        parse_macro_input!(item as anchor_syn::AccountsStruct)
+            .to_token_stream()
+            .into()
+    }
+    ```
+    ```#[account(init, ...)]``` is one of custom field attribute can be parsed by the derive macro:
+    ```rust
+    ...
+    impl Parse for ConstraintToken {
+        fn parse(stream: ParseStream) -> ParseResult<Self> {
+            accounts_parser::constraints::parse_token(stream)
+        }
+    }
+    ...
+    ```
+
+    All fields under ```#[derive(Accounts)]``` are divided into two categories:
+    - primitive account type: ```AccountInfo<'_>```, ```Account<'_, T>```, etc. 
+        Anchor does have default validation behavior for primitive account types, even if you don’t provide ```#[account]```
+    - or a composite
