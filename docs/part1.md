@@ -1,4 +1,3 @@
-[toc]
 # Part1
 
 ## 1. macro - account
@@ -14,52 +13,53 @@
 
 2. Demo
 
-    ```rust
-    #[account]
-    pub struct MyStorage {
-        value1: u8,
-    }
-    ```
-    - The #[account] macro will auto-generate the implementations for all of these traits: 
-        - ```AccountSerialize```
+```rust
+pub struct MyStorage {
+#[account]
+    value1: u8,
+}
+```
+- The #[account] macro will auto-generate the implementations for all of these traits: 
+    - ```AccountSerialize```
 
-        - ```AccountDeserialize```
+    - ```AccountDeserialize```
 
-        - ```Owner```
+    - ```Owner```
 
-        - ```Clone```
-
-        Those traits implementation is also used for trait bounds checking.
+    - ```Clone```
 <br>
 
-    - The Account type will check that the owner of the account being loaded is actually owned by the program. If the owner does not match, then it won’t load.
+    Those traits implementation is also used for trait bounds checking.
 <br>
 
-    - Based on struct ```MyStorage``` and macro ```#[account]```, three functions can be realized:
+- The Account type will check that the owner of the account being loaded is actually owned by the program. If the owner does not match, then it won’t load.
+<br>
 
-        - Serialize a MyStorage instance into bytes
+- Based on struct ```MyStorage``` and macro ```#[account]```, three functions can be realized:
 
-        - Deserialize from bytes
+    - Serialize a MyStorage instance into bytes
 
-        - Print it for debug
+    - Deserialize from bytes
 
-        ```rust
-        fn main() {
-            // ✅ Create an instance
-            let storage = MyStorage { value1: 42 };
+    - Print it for debug
 
-            // ✅ Serialize with discriminator
-            let mut serialized: Vec<u8> = Vec::new();
-            storage.try_serialize(&mut serialized).unwrap();
+```rust
+fn main() {
+    // ✅ Create an instance
+    let storage = MyStorage { value1: 42 };
 
-            // ✅ Deserialize from bytes
-            let mut bytes_slice = serialized.as_slice();
-            let deserialized = MyStorage::try_deserialize(&mut bytes_slice).unwrap();
+    // ✅ Serialize with discriminator
+    let mut serialized: Vec<u8> = Vec::new();
+    storage.try_serialize(&mut serialized).unwrap();
 
-            // ✅ Print result
-            println!("Deserialized struct: {:?}", deserialized);
-        }
-        ```
+    // ✅ Deserialize from bytes
+    let mut bytes_slice = serialized.as_slice();
+    let deserialized = MyStorage::try_deserialize(&mut bytes_slice).unwrap();
+
+    // ✅ Print result
+    println!("Deserialized struct: {:?}", deserialized);
+}
+```
 
 ### 1.2 #[derive(Accounts)]
 
@@ -157,3 +157,47 @@ pub struct AccountInfo<'a> {
     - primitive account type: ```AccountInfo<'_>```, ```Account<'_, T>```, etc. 
         Anchor does have default validation behavior for primitive account types, even if you don’t provide ```#[account]```
     - or a composite
+
+## 2. CRUD
+The storage model in this part is fully controlled by intructions defined in the program owning it.  
+
+### 2.1 create
+- Demo: ```MyStorage``` is defined as PDA to store data field which can be passed by calling the instruction ```create```.
+    - As introduced above, most tedious handling or validation logic is coped by derive macro.
+    - The instruction ```create``` requires passing accounts info including address of ```myStorage```, keypair of ```signer```, and system program account
+```rust
+...
+
+#[account]
+pub struct MyStorage {
+    value1: u64,
+}
+
+#[derive(Accounts)]
+pub struct Create<'info> {
+    #[account(init,
+              payer = signer,
+              space=size_of::<MyStorage>() + 8,
+              seeds = [],
+              bump)]
+    pub my_storage: Account<'info, MyStorage>,
+
+    #[account(mut)]
+    pub signer: Signer<'info>,
+
+    pub system_program: Program<'info, System>,
+}
+
+#[program]
+pub mod crud {
+    ...
+
+    pub fn create(ctx: Context<Create>) -> Result<()> {
+        Ok(())
+    }
+
+    ...
+}
+```
+### 2.2 others
+RUD demo implementation is nothing much different from C.
