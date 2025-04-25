@@ -22,13 +22,6 @@ describe("storage", () => {
       program.programId
     );
 
-    // // Airdrop some SOL if needed
-    // const sig = await provider.connection.requestAirdrop(
-    //   provider.wallet.publicKey,
-    //   anchor.web3.LAMPORTS_PER_SOL
-    // );
-    // await provider.connection.confirmTransaction(sig);
-
     // Send the transaction
     await program.methods
       .createUser(key, name, address)
